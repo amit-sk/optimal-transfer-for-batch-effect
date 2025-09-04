@@ -1,0 +1,30 @@
+import pandas as pd
+import numpy as np
+
+PATH_TO_DATA = r'.\raw_data\RISK.tsv'
+PATH_TO_METADATA = r'.\raw_data\metadata.txt'
+
+risk_data = pd.read_csv(PATH_TO_DATA, sep='\t')
+meta = pd.read_csv(PATH_TO_METADATA, sep='\t')
+risk_data_transpose = risk_data.transpose()
+
+processed_data = pd.DataFrame()
+
+for idx, row in risk_data_transpose.iterrows():
+    if idx in ['# OTU','taxonomy']:
+        continue
+
+    metadata = meta[meta.sample_accession == idx]
+    phenotype = metadata.disease.iloc[0]
+    if phenotype not in ['control', 'CD']:
+        continue
+
+    data = risk_data[['# OTU', idx]].copy()
+    data[idx] = data[idx] / data[idx].sum()
+
+    new_row = {'sample id': idx, 'phenotype': phenotype}
+    new_row.update({int(r['# OTU']):r[idx] for _, r in data.iterrows()})
+    processed_data = pd.concat([processed_data, pd.DataFrame([new_row])], ignore_index=True)
+
+processed_data.to_csv("processed_data.csv")
+
