@@ -2,12 +2,10 @@ import os
 import pandas as pd
 import numpy as np
 
+
 PATH_TO_DATA = os.path.join('.', 'raw_data','RISK.tsv')
 PATH_TO_METADATA = os.path.join('.','raw_data', 'metadata.txt')
 
-risk_data = pd.read_csv(PATH_TO_DATA, sep='\t')
-risk_meta = pd.read_csv(PATH_TO_METADATA, sep='\t')
-risk_data_transpose = risk_data.transpose()
 
 def obtain_data():
     processed_data = pd.DataFrame()
@@ -43,6 +41,10 @@ def filter_uncommon_otus(data, should_appear_in=0.1, min_abundance=0.01):
 
 
 if __name__ == "__main__":
+    risk_data = pd.read_csv(PATH_TO_DATA, sep='\t')
+    risk_meta = pd.read_csv(PATH_TO_METADATA, sep='\t')
+    risk_data_transpose = risk_data.transpose()
+
     data = obtain_data()
     data = filter_uncommon_otus(data)
     data.to_csv("data.csv")
