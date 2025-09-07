@@ -1,8 +1,9 @@
+import os
 import pandas as pd
 import numpy as np
 
-PATH_TO_DATA = r'.\raw_data\RISK.tsv'
-PATH_TO_METADATA = r'.\raw_data\metadata.txt'
+PATH_TO_DATA = os.path.join('.', 'raw_data','RISK.tsv')
+PATH_TO_METADATA = os.path.join('.','raw_data', 'metadata.txt')
 
 risk_data = pd.read_csv(PATH_TO_DATA, sep='\t')
 risk_meta = pd.read_csv(PATH_TO_METADATA, sep='\t')
