@@ -30,9 +30,20 @@ def obtain_data():
 
     return processed_data
 
-def filter_uncommon_otus(data, should_appear_in=0.1, at_min_abundance=0.01):
-    pass
 
-data = obtain_data()
-data.to_csv("processed_data.csv")
+def filter_uncommon_otus(data, should_appear_in=0.1, min_abundance=0.01):
+    otus = [c for c in data.columns if type(c) is int]
+    non_otu_columns = [c for c in data.columns if not type(c) is int]
+    amount_greater_than_min = (data[otus] >= min_abundance).sum()
+    otus_to_keep = amount_greater_than_min[amount_greater_than_min >= (should_appear_in * len(data))].index
+
+    cols = non_otu_columns
+    cols.extend(otus_to_keep)
+    return data[cols]
+
+
+if __name__ == "__main__":
+    data = obtain_data()
+    data = filter_uncommon_otus(data)
+    data.to_csv("data.csv")
 
