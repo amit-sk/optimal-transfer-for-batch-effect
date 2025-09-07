@@ -13,9 +13,10 @@ def main():
 
     for group in np.unique(data.phenotype):
         idx = (data.phenotype == group)
-        plt.scatter(emb[idx, 0], emb[idx, 1], label=group)#, alpha=0.75, s=28)
+        plt.scatter(emb[idx, 0], emb[idx, 1], label=group)#, alpha=0.75)
 
     plt.legend(title="phenotype")
+    plt.title("PCA of OTU Relative Abundance")
     plt.show()
 
 
