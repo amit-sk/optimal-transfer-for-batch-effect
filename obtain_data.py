@@ -4,10 +4,12 @@ import numpy as np
 
 
 PATH_TO_RISK_DATA = os.path.join('.', 'raw_data','RISK.tsv')
-PATH_TO_RISK_METADATA = os.path.join('.','raw_data', 'metadata.txt')
+PATH_TO_RISK_METADATA = os.path.join('.','raw_data', 'risk_metadata.txt')
+PATH_TO_MUCOSALIBD_DATA = os.path.join('.','raw_data', 'MucosalIBD.tsv')
+PATH_TO_MUCOSALIBD_METADATA = os.path.join('.','raw_data', 'mucosalibd_metadata.txt')
 
 
-def obtain_data(data, metadata):
+def obtain_relative_abundance_data(data, metadata):
     processed_data = pd.DataFrame()
 
     # iterate over samples
@@ -15,8 +17,8 @@ def obtain_data(data, metadata):
         if idx in ['# OTU','taxonomy']:
             continue
 
-        meta = metadata[metadata.sample_accession == idx]
-        phenotype = meta.disease.iloc[0]
+        sample_meta = metadata[metadata.sample_accession_16S == idx]
+        phenotype = sample_meta.disease.iloc[0]
         if phenotype not in ['control', 'CD']:
             continue
 
@@ -45,8 +47,14 @@ def filter_uncommon_otus(data, should_appear_in=0.1, min_abundance=0.01):
 if __name__ == "__main__":
     risk_data = pd.read_csv(PATH_TO_RISK_DATA, sep='\t')
     risk_meta = pd.read_csv(PATH_TO_RISK_METADATA, sep='\t')
+    mucosalibd_data = pd.read_csv(PATH_TO_MUCOSALIBD_DATA, sep='\t')
+    mucosalibd_meta = pd.read_csv(PATH_TO_MUCOSALIBD_METADATA, sep='\t')
 
-    data = obtain_data(risk_data, risk_meta)
-    data = filter_uncommon_otus(data)
-    data.to_csv("data.csv")
+    risk_processed_data = obtain_relative_abundance_data(risk_data, risk_meta)
+    mucosalibd_processed_data = obtain_relative_abundance_data(mucosalibd_data, mucosalibd_meta)
+    risk_processed_data = filter_uncommon_otus(risk_processed_data)
+    mucosalibd_processed_data = filter_uncommon_otus(mucosalibd_processed_data)
+    risk_processed_data.to_csv("risk_data.csv")
+
+    mucosalibd_processed_data.to_csv("mucosalibd_data.csv")
 
