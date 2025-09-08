@@ -33,7 +33,7 @@ def obtain_relative_abundance_data(data, metadata):
     return processed_data
 
 
-def filter_uncommon_otus(data, should_appear_in=0.1, min_abundance=0.01):
+def filter_uncommon_otus(data, should_appear_in=0.05, min_abundance=0.005):
     otus = [c for c in data.columns if type(c) is int]
     non_otu_columns = [c for c in data.columns if not type(c) is int]
     amount_greater_than_min = (data[otus] >= min_abundance).sum()
@@ -44,17 +44,21 @@ def filter_uncommon_otus(data, should_appear_in=0.1, min_abundance=0.01):
     return data[cols]
 
 
-if __name__ == "__main__":
+def main():
     risk_data = pd.read_csv(PATH_TO_RISK_DATA, sep='\t')
     risk_meta = pd.read_csv(PATH_TO_RISK_METADATA, sep='\t')
     mucosalibd_data = pd.read_csv(PATH_TO_MUCOSALIBD_DATA, sep='\t')
     mucosalibd_meta = pd.read_csv(PATH_TO_MUCOSALIBD_METADATA, sep='\t')
 
     risk_processed_data = obtain_relative_abundance_data(risk_data, risk_meta)
-    mucosalibd_processed_data = obtain_relative_abundance_data(mucosalibd_data, mucosalibd_meta)
     risk_processed_data = filter_uncommon_otus(risk_processed_data)
-    mucosalibd_processed_data = filter_uncommon_otus(mucosalibd_processed_data)
     risk_processed_data.to_csv("risk_data.csv")
 
+    mucosalibd_processed_data = obtain_relative_abundance_data(mucosalibd_data, mucosalibd_meta)
+    mucosalibd_processed_data = filter_uncommon_otus(mucosalibd_processed_data)
     mucosalibd_processed_data.to_csv("mucosalibd_data.csv")
+
+
+if __name__ == "__main__":
+    main()
 
