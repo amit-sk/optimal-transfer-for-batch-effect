@@ -64,6 +64,7 @@ def main():
     combined_data.set_index('sample_id', inplace=True)
 
     show_variance(combined_data, 'dataset')
+    show_variance(combined_data, 'phenotype')
     
     print("Done.")
 
