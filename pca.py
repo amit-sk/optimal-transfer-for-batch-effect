@@ -24,41 +24,46 @@ def pcoa(data, group_col, seed=SEED):
 
     for group in np.unique(group_col):
         idx = (group_col == group)
-        plt.scatter(mod[idx, 0], mod[idx, 1], label=group)#, alpha=0.75)
+        plt.scatter(mod[idx, 0], mod[idx, 1], label=group, alpha=0.75)
 
     plt.legend(title=group_col.name)
     plt.title("PCoA of OTU Relative Abundance")
     plt.show()
 
 
+def show_variance(data, group_col_name):
+    otu_data = data[[c for c in data.columns if c.isnumeric()]]
+    permanova_results = get_permanova_results(otu_data, data[group_col_name])
+    print(f"PERMANOVA results:\n{permanova_results}\n")
+
+    pcoa(otu_data, data[group_col_name])
+
+
 def main():
     # risk data
     print("RISK data:")
     risk_data = pd.read_csv("risk_data.csv")
-    risk_otu_data = risk_data[[c for c in risk_data.columns if c.isnumeric()]]
-
-    permanova_results = get_permanova_results(risk_otu_data, risk_data.phenotype)
-    print(f"PERMANOVA results:\n{permanova_results}\n")
+    show_variance(risk_data, 'phenotype')
 
     """
     PCA:
     # X_scaled = StandardScaler().fit_transform(otu_data.values)
     # emb = PCA(n_components=2).fit_transform(X_scaled)
     """
-    pcoa(risk_otu_data, risk_data.phenotype)
 
     # mucosalibd data
     print("MucosalIBD data:")
     mucosalibd_data = pd.read_csv("mucosalibd_data.csv")
-    mucosalibd_otu_data = mucosalibd_data[[c for c in mucosalibd_data.columns if c.isnumeric()]]
-
-    permanova_results = get_permanova_results(mucosalibd_otu_data, mucosalibd_data.phenotype)
-    print(f"PERMANOVA results:\n{permanova_results}\n")
-    pcoa(mucosalibd_otu_data, mucosalibd_data.phenotype)
+    show_variance(mucosalibd_data, 'phenotype')
 
     print("PERMANOVA between datasets:")
+    risk_data['dataset'] = 'RISK'
+    mucosalibd_data['dataset'] = 'MucosalIBD'
     combined_data = pd.concat([risk_data, mucosalibd_data])
     combined_data.fillna(0.0, inplace=True)
+    combined_data.set_index('sample_id', inplace=True)
+
+    show_variance(combined_data, 'dataset')
     
     print("Done.")
 
