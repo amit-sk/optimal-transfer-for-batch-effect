@@ -18,9 +18,9 @@ def get_permanova_results(data, group_col):
     return permanova_results
 
 
-def pcoa(data, group_col):
+def pcoa(data, group_col, seed=SEED):
     distance_matrix = squareform(pdist(data.values, metric='braycurtis'))
-    mod = MDS(n_components=2, dissimilarity="precomputed", random_state=SEED).fit_transform(distance_matrix)
+    mod = MDS(n_components=2, dissimilarity="precomputed", random_state=seed).fit_transform(distance_matrix)
 
     for group in np.unique(group_col):
         idx = (group_col == group)
@@ -32,11 +32,12 @@ def pcoa(data, group_col):
 
 
 def main():
-    data = pd.read_csv("risk_data.csv")
-    data = data.set_index('sample_id')
-    otu_data = data[[c for c in data.columns if c.isnumeric()]]
+    # risk data
+    print("RISK data:")
+    risk_data = pd.read_csv("risk_data.csv")
+    risk_otu_data = risk_data[[c for c in risk_data.columns if c.isnumeric()]]
 
-    permanova_results = get_permanova_results(otu_data, data.phenotype)
+    permanova_results = get_permanova_results(risk_otu_data, risk_data.phenotype)
     print(f"PERMANOVA results:\n{permanova_results}\n")
 
     """
@@ -44,7 +45,22 @@ def main():
     # X_scaled = StandardScaler().fit_transform(otu_data.values)
     # emb = PCA(n_components=2).fit_transform(X_scaled)
     """
-    pcoa(otu_data, data.phenotype)
+    pcoa(risk_otu_data, risk_data.phenotype)
+
+    # mucosalibd data
+    print("MucosalIBD data:")
+    mucosalibd_data = pd.read_csv("mucosalibd_data.csv")
+    mucosalibd_otu_data = mucosalibd_data[[c for c in mucosalibd_data.columns if c.isnumeric()]]
+
+    permanova_results = get_permanova_results(mucosalibd_otu_data, mucosalibd_data.phenotype)
+    print(f"PERMANOVA results:\n{permanova_results}\n")
+    pcoa(mucosalibd_otu_data, mucosalibd_data.phenotype)
+
+    print("PERMANOVA between datasets:")
+    combined_data = pd.concat([risk_data, mucosalibd_data])
+    combined_data.fillna(0.0, inplace=True)
+    
+    print("Done.")
 
 
 
