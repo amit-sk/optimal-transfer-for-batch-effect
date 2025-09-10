@@ -49,9 +49,6 @@ def renormalize_data(data):
     otus = [c for c in data.columns if type(c) is int]
     sums = data[otus].sum(axis=1) 
     data[otus] = data[otus].div(sums, axis=0)
-    # for sample_id, row in data.iterrows():
-    #     s = row.drop('phenotype').sum()
-    #     data[sample_id] = row.drop('phenotype') / s
 
 
 def main():
