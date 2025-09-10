@@ -31,40 +31,43 @@ def pcoa(data, group_col, seed=SEED):
     plt.show()
 
 
-def show_variance(data, group_col_name):
+def show_variance(data, group_col_name, run_pcoa=True):
     otu_data = data[[c for c in data.columns if c.isnumeric()]]
     permanova_results = get_permanova_results(otu_data, data[group_col_name])
     print(f"PERMANOVA results:\n{permanova_results}\n")
 
-    pcoa(otu_data, data[group_col_name])
+    # it's slow... so optional
+    if run_pcoa:
+        pcoa(otu_data, data[group_col_name])
 
 
 def main():
     # risk data
     print("RISK data:")
     risk_data = pd.read_csv("risk_data.csv")
-    show_variance(risk_data, 'phenotype')
-
-    """
-    PCA:
-    # X_scaled = StandardScaler().fit_transform(otu_data.values)
-    # emb = PCA(n_components=2).fit_transform(X_scaled)
-    """
+    show_variance(risk_data, 'phenotype', run_pcoa=False)
 
     # mucosalibd data
     print("MucosalIBD data:")
     mucosalibd_data = pd.read_csv("mucosalibd_data.csv")
-    show_variance(mucosalibd_data, 'phenotype')
+    show_variance(mucosalibd_data, 'phenotype', run_pcoa=False)
 
+    # combined
     print("PERMANOVA between datasets:")
-    risk_data['dataset'] = 'RISK'
-    mucosalibd_data['dataset'] = 'MucosalIBD'
+    risk_data['dataset+phenotype'] = 'RISK_' + risk_data['phenotype']
+    mucosalibd_data['dataset+phenotype'] = 'MucosalIBD_' + mucosalibd_data['phenotype']
     combined_data = pd.concat([risk_data, mucosalibd_data])
     combined_data.fillna(0.0, inplace=True)
     combined_data.set_index('sample_id', inplace=True)
 
-    show_variance(combined_data, 'dataset')
-    show_variance(combined_data, 'phenotype')
+    # # test only controls
+    # combined_data = combined_data[combined_data['phenotype'] == 'control']
+
+    show_variance(combined_data, 'dataset+phenotype')
+
+    # # test dataset and phenotype separately
+    # show_variance(combined_data, 'dataset')
+    # show_variance(combined_data, 'phenotype')
     
     print("Done.")
 
