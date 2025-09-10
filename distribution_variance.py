@@ -17,7 +17,7 @@ def get_permanova_results(data, group_col):
     return permanova_results
 
 
-def pcoa(data, group_col, seed=data_utils.PROJECT_SEED):
+def pcoa(data, group_col, seed=data_utils.PROJECT_SEED, pcoa_pairs=None):
     distance_matrix = squareform(pdist(data.values, metric='braycurtis'))
     mod = MDS(n_components=2, dissimilarity="precomputed", random_state=seed).fit_transform(distance_matrix)
 
@@ -25,19 +25,23 @@ def pcoa(data, group_col, seed=data_utils.PROJECT_SEED):
         idx = (group_col == group)
         plt.scatter(mod[idx, 0], mod[idx, 1], label=group, alpha=0.75)
 
+    if pcoa_pairs is not None:
+        for i, j in pcoa_pairs:
+            plt.plot([mod[i, 0], mod[j, 0]], [mod[i, 1], mod[j, 1]], alpha=0.75, color='grey')
+
     plt.legend(title=group_col.name)
     plt.title("PCoA of OTU Relative Abundance")
     plt.show()
 
 
-def show_variance(data, group_col_name, run_pcoa=True):
+def show_variance(data, group_col_name, run_pcoa=True, pcoa_pairs=None):
     otu_data = data[data_utils.get_otu_columns(data)]
     permanova_results = get_permanova_results(otu_data, data[group_col_name])
     print(f"PERMANOVA results:\n{permanova_results}\n")
 
     # it's slow... so optional
     if run_pcoa:
-        pcoa(otu_data, data[group_col_name])
+        pcoa(otu_data, data[group_col_name], pcoa_pairs=pcoa_pairs)
 
 
 def main():

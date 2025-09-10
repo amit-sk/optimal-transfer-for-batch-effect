@@ -12,9 +12,10 @@ def main():
     risk_otu_data = risk_data[data_utils.get_otu_columns(risk_data)]
     risk_distance_matrix = squareform(pdist(risk_otu_data.values, metric='braycurtis'))
 
-    noisy_data = data_utils.create_noisy_data(risk_otu_data)
-    noisy_data = data_utils.renormalize_data(noisy_data, otu_only=True)
-    noisy_distance_matrix = squareform(pdist(noisy_data.values, metric='braycurtis'))
+    noisy_data = data_utils.create_noisy_data(risk_data)
+    noisy_data = data_utils.renormalize_data(noisy_data)
+    noisy_otu_data = noisy_data[data_utils.get_otu_columns(noisy_data)]
+    noisy_distance_matrix = squareform(pdist(noisy_otu_data.values, metric='braycurtis'))
 
     risk_data['dataset'] = 'orig'
     risk_data['sample_id'] = risk_data['sample_id'] + '_orig'
@@ -23,7 +24,9 @@ def main():
     noisy_data['dataset'] = 'noisy'
     combined_data = pd.concat([risk_data, noisy_data])
     combined_data.set_index('sample_id', inplace=True)
-    distribution_variance.show_variance(combined_data, 'dataset')
+    indexes = combined_data.index
+    pairs = [(indexes.get_loc(i), indexes.get_loc(i.replace('_orig','_noisy'))) for i in indexes if i.endswith('_orig')]
+    distribution_variance.show_variance(combined_data, 'dataset', pcoa_pairs=pairs)
 
     # mucosalibd_data = pd.read_csv("mucosalibd_data.csv")
     # mucosalibd_otu_data = mucosalibd_data[[c for c in mucosalibd_data.columns if c.isnumeric()]]

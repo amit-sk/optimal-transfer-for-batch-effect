@@ -55,11 +55,13 @@ def main():
     risk_processed_data = obtain_relative_abundance_data(risk_data, risk_meta)
     risk_processed_data = filter_uncommon_otus(risk_processed_data)
     risk_processed_data = data_utils.renormalize_data(risk_processed_data)
+    risk_processed_data.set_index('sample_id', inplace=True)
     risk_processed_data.to_csv("risk_data.csv")
 
     mucosalibd_processed_data = obtain_relative_abundance_data(mucosalibd_data, mucosalibd_meta)
     mucosalibd_processed_data = filter_uncommon_otus(mucosalibd_processed_data)
     mucosalibd_processed_data = data_utils.renormalize_data(mucosalibd_processed_data)
+    mucosalibd_processed_data.set_index('sample_id', inplace=True)
     mucosalibd_processed_data.to_csv("mucosalibd_data.csv")
 
     print("Done.")
