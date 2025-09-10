@@ -34,3 +34,7 @@ def create_noisy_data(data, proportion_of_std=0.1, seed=PROJECT_SEED):
 
     return copy
 
+
+def get_otu_columns(data):
+    return [c for c in data.columns if (type(c) is int) or (type(c) is str and c.isnumeric())]
+

@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import MDS
 from skbio.stats.distance import permanova
 
-from data_utils import PROJECT_SEED
+import data_utils
 
 
 def get_permanova_results(data, group_col):
@@ -17,7 +17,7 @@ def get_permanova_results(data, group_col):
     return permanova_results
 
 
-def pcoa(data, group_col, seed=PROJECT_SEED):
+def pcoa(data, group_col, seed=data_utils.PROJECT_SEED):
     distance_matrix = squareform(pdist(data.values, metric='braycurtis'))
     mod = MDS(n_components=2, dissimilarity="precomputed", random_state=seed).fit_transform(distance_matrix)
 
@@ -31,7 +31,7 @@ def pcoa(data, group_col, seed=PROJECT_SEED):
 
 
 def show_variance(data, group_col_name, run_pcoa=True):
-    otu_data = data[[c for c in data.columns if c.isnumeric()]]
+    otu_data = data[data_utils.get_otu_columns(data)]
     permanova_results = get_permanova_results(otu_data, data[group_col_name])
     print(f"PERMANOVA results:\n{permanova_results}\n")
 
