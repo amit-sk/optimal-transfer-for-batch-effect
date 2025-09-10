@@ -8,8 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import MDS
 from skbio.stats.distance import permanova
 
-
-SEED = 1
+from data_utils import PROJECT_SEED
 
 
 def get_permanova_results(data, group_col):
@@ -18,7 +17,7 @@ def get_permanova_results(data, group_col):
     return permanova_results
 
 
-def pcoa(data, group_col, seed=SEED):
+def pcoa(data, group_col, seed=PROJECT_SEED):
     distance_matrix = squareform(pdist(data.values, metric='braycurtis'))
     mod = MDS(n_components=2, dissimilarity="precomputed", random_state=seed).fit_transform(distance_matrix)
 
