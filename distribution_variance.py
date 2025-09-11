@@ -17,6 +17,41 @@ def get_permanova_results(data, group_col):
     return permanova_results
 
 
+def calc_frac_idx(x1_mat ,x2_mat):
+	"""
+    Based on code from SCOTv1.
+	Returns fraction closer than true match for each sample (as an array).
+	"""
+	fracs = []
+	nsamp = x1_mat.shape[0]
+	rank = 0
+
+	for row_idx in range(nsamp):
+		euc_dist = np.sqrt(np.sum(np.square(np.subtract(x1_mat[row_idx,:], x2_mat)), axis=1))
+		true_nbr = euc_dist[row_idx]
+		sort_euc_dist = sorted(euc_dist)
+		rank =sort_euc_dist.index(true_nbr)
+		frac = float(rank)/(nsamp -1)
+
+		fracs.append(frac)
+
+	return fracs
+
+def calc_domain_avg_FOSCTTM(x1_mat, x2_mat):
+	"""
+    Based on code from SCOTv1.
+	Outputs average FOSCTTM measure (averaged over both domains)
+	Get the fraction matched for all data points in both directions
+	Averages the fractions in both directions for each data point
+	"""
+	fracs1 = calc_frac_idx(x1_mat, x2_mat)
+	fracs2 = calc_frac_idx(x2_mat, x1_mat)
+	fracs = []
+	for i in range(len(fracs1)):
+		fracs.append((fracs1[i] + fracs2[i]) / 2)  
+	return fracs
+
+
 def pcoa(data, group_col, seed=data_utils.PROJECT_SEED, pcoa_pairs=None):
     distance_matrix = squareform(pdist(data.values, metric='braycurtis'))
     mod = MDS(n_components=2, dissimilarity="precomputed", random_state=seed).fit_transform(distance_matrix)
